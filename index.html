@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eyas - EYAml Server</title>
+  <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
+  <link rel="stylesheet" href="/static/css/jquery-ui.structure.min.css">
+  <link rel="stylesheet" href="/static/css/jquery-ui.theme.min.css">
+  <link rel="stylesheet" href="/static/css/eyas.css">
+  <script src="/static/js/jquery-3.6.0.min.js"></script>
+  <script src="/static/js/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $( "#tabs" ).tabs();
+    $( "#accordion" ).accordion({
+        active: 1,
+        heightStyle: "fill"
+      });
+
+    $.get( "api/keys", function( json ) {
+        response=JSON.parse(json);
+        if (response.error != null) {
+            alert(response.error.message);
+        }
+        for(var i = 0; i < response.data.length; i++) {
+            s="<option value=\""+response.data[i]+"\">"+response.data[i]+"</option>";
+            $('#use0').append(s);
+            $('#use1').append(s);
+            $('#use2').append(s);
+        }
+      });
+
+    $("#single").submit(function(e) {
+        e.preventDefault();
+    
+        var form = $(this);
+        var actionUrl = form.attr('action');
+        
+        var password = $("#password1").val();
+        var confirmPassword = $("#password2").val();
+        if (password != confirmPassword) {
+          alert("Passwords don't match!")
+          return
+        }
+        
+        $.ajax({
+            type: "POST",
+            url: actionUrl,
+            data: form.serialize(),
+            success: function(json)
+            {
+                response=JSON.parse(json);
+                if (response.error != null) {
+                    alert(response.error.message);
+                }
+                $("#output").html("")
+                for (const [key, value] of Object.entries(response.data)) {
+                    $("#output").append("<div>\n<h2>" + key +"</h2>\n<textarea id=\"output_"+key+"\" cols=\"84\" rows=\"15\" class=\"out\">"+value+"</textarea>\n</div>\n")
+                }
+                $("#accordion").accordion( "option", "active", 0 );
+            },
+            error: function(xhr, ajaxOptions, thrownError)
+            {
+                response=JSON.parse(xhr.responseText);
+                message = response.error.message
+                if (response.error.error != null) {
+                    message=message +"\n"+response.error.error
+                }
+                alert(message);
+            }
+        });
+        
+    });
+
+    $("#yaml").submit(function(e) {
+        e.preventDefault();
+    
+        var form = $(this);
+        var actionUrl = form.attr('action');
+        
+        $.ajax({
+            type: "POST",
+            url: actionUrl,
+            data: form.serialize(),
+            success: function(json)
+            {
+                response=JSON.parse(json);
+                if (response.error != null) {
+                    alert(response.error.message);
+                }
+                $("#output").html("")
+                for (const [key, value] of Object.entries(response.data)) {
+                    $("#output").append("<div>\n<h2>" + key +"</h2>\n<textarea id=\"output_"+key+"\" cols=\"84\" rows=\"15\" class=\"out\">"+value+"</textarea>\n</div>\n")
+                }
+                $("#accordion").accordion( "option", "active", 0 );
+            },
+            error: function(xhr, ajaxOptions, thrownError)
+            {
+                response=JSON.parse(xhr.responseText);
+                message = response.error.message
+                if (response.error.error != null) {
+                    message=message +"\n"+response.error.error
+                }
+                alert(message);
+            }
+        });
+        
+    });
+
+    $("#csv").submit(function(e) {
+        e.preventDefault();
+    
+        var form = $(this);
+        var actionUrl = form.attr('action');
+        
+        $.ajax({
+            type: "POST",
+            url: actionUrl,
+            data: form.serialize(),
+            success: function(json)
+            {
+                response=JSON.parse(json);
+                if (response.error != null) {
+                    alert(response.error.message);
+                }
+                $("#output").html("")
+                for (const [key, value] of Object.entries(response.data)) {
+                    $("#output").append("<div>\n<h2>" + key +"</h2>\n<textarea id=\"output_"+key+"\" cols=\"84\" rows=\"15\" class=\"out\">"+value+"</textarea>\n</div>\n")
+                }
+                $("#accordion").accordion( "option", "active", 0 );
+            },
+            error: function(xhr, ajaxOptions, thrownError)
+            {
+                response=JSON.parse(xhr.responseText);
+                message = response.error.message
+                if (response.error.error != null) {
+                    message=message +"\n"+response.error.error
+                }
+                alert(message);
+            }
+        });
+    });
+  } );
+  </script>
+</head>
+<body>
+<div class="bg">
+    <div class="header">
+        <h1 class="header">EYAS - EYAml Server</h1>
+    </div>
+    <div id="main" class="main">
+        <div id="accordion">
+            <h3>Output</h3>
+            <div id="output">
+                <p>
+                    <textarea id="output_dummy" name="output_dummy" cols="40" rows="20" disabled> </textarea>
+                </p>
+            </div>
+            <h3>Input</h3>
+            <div id="input">
+                <p>
+                    <div id="tabs">
+                        <ul>
+                            <li><a href="#tabs-1">Encrypt single key</a></li>
+                            <li><a href="#tabs-2">Encrypt YAML</a></li>
+                            <li><a href="#tabs-3">Encrypt CSV</a></li>
+                        </ul>
+                        <div id="tabs-1">
+                            <form id="single" class="encryptform" action="api/encrypt/single">
+                                <table>
+                                    <tr><th colspan="2"><h2 class="header">Encrypt single key</h2></th></tr>
+                                    <tr>
+                                        <th>
+                                            Key
+                                        </th>
+                                        <td>
+                                            <input id="key" name="key" type="text" value="mymodule::mypassword" class="input" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            Password
+                                        </th>
+                                        <td>
+                                            <input id="password1" name="password1" type="password" class="input" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            Repeat password
+                                        </th>
+                                        <td>
+                                            <input id="password2" name="password2" type="password" class="input" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            Output
+                                        </th>
+                                        <td>
+                                            <input type="radio" id="block" name="output" value="block" checked><label for="block">Block</label><br>
+                                            <input type="radio" id="string" name="output" value="string" ><label for="string">String</label><br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <label for="use">Use PKCS7 key(s)</label>
+                                        </th>
+                                        <td>
+                                            <select id="use0" name="use" size="5" multiple class="input">
+                
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>&nbsp;</th>
+                                        <td>
+                                            <input type="submit" value="Encrypt" class="ui-button ui-widget ui-corner-all">
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                        <div id="tabs-2">
+                            <form id="yaml" class="encryptform" action="api/encrypt/yaml">
+                                <table>
+                                    <tr><th colspan="4"><h2 class="header">Encrypt all keys in yaml</h2></th></tr>
+                                    <tr>
+                                        <th>
+                                            Output
+                                        </th>
+                                        <td>
+                                            <input type="radio" id="block" name="output" value="block" checked><label for="block">Block</label><br>
+                                            <input type="radio" id="string" name="output" value="string" ><label for="string">String</label><br>
+                                        </td>
+                                        <th rowspan="3">
+                                            YAML
+                                        </th>
+                                        <td rowspan="3">
+                                            <textarea id="yaml" name="yaml" cols="40" rows="20" class="input"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <label for="use">Use PKCS7 key(s)</label>
+                                        </th>
+                                        <td>
+                                            <select id="use1" name="use" size="5" multiple class="input">
+                
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>&nbsp;</th>
+                                        <td>
+                                            <input type="submit" value="Encrypt" class="ui-button ui-widget ui-corner-all">
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                        <div id="tabs-3">
+                            <form id="csv" class="encryptform" action="api/encrypt/csv">
+                                <table>
+                                    <tr><th colspan="4"><h2 class="header">Encrypt csv data</h2></th></tr>
+                                    <tr>
+                                        <th>
+                                            Key column
+                                        </th>
+                                        <td>
+                                            <input id="keycol" name="keycol" type="number" min="0" value="0" class="input"/>
+                                        </td>
+                                        <th rowspan="6">
+                                            CSV
+                                        </th>
+                                        <td rowspan="6">
+                                            <textarea id="csv" name="csv" cols="40" rows="20" class="input"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            Password column
+                                        </th>
+                                        <td>
+                                            <input id="passcol" name="passcol" type="number" min="0" value="1" class="input"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            Separator
+                                        </th>
+                                        <td>
+                                            <input id="separator" name="separator" type="text" size="1" value="," class="input"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            Output
+                                        </th>
+                                        <td>
+                                            <input type="radio" id="block" name="output" value="block" checked><label for="block">Block</label><br>
+                                            <input type="radio" id="string" name="output" value="string" ><label for="string">String</label><br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <label for="use">Use PKCS7 key(s)</label>
+                                        </th>
+                                        <td>
+                                            <select id="use2" name="use" size="5" multiple class="input">
+                
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>&nbsp;</th>
+                                        <td>
+                                            <input type="submit" value="Encrypt" class="ui-button ui-widget ui-corner-all">
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
