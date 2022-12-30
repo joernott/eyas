@@ -4,32 +4,86 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eyas - EYAml Server</title>
+  <title>LCARS</title>
+  <link rel="stylesheet" href="/static/css/lcars.min.css">
+  <style>
+
+
+  </style>
   <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
   <link rel="stylesheet" href="/static/css/jquery-ui.structure.min.css">
   <link rel="stylesheet" href="/static/css/jquery-ui.theme.min.css">
   <link rel="stylesheet" href="/static/css/eyas.css">
-  <script src="/static/js/jquery-3.6.0.min.js"></script>
-  <script src="/static/js/jquery-ui.js"></script>
+  <script src="/static/js/jquery-3.6.3.min.js"></script>
   <script>
   $( function() {
-    $( "#tabs" ).tabs();
-    $( "#accordion" ).accordion({
-        active: 1,
-        heightStyle: "fill"
-      });
+    var output_disabled = true;
 
-    $.get( "api/keys", function( json ) {
-        response=JSON.parse(json);
-        if (response.error != null) {
-            alert(response.error.message);
+    function uiReset() {
+        $("#encrypt_single").hide();
+        $("#encrypt_yaml").hide();
+        $("#encrypt_csv").hide();
+        $("#output").hide();
+        $("#documentation").hide();
+        $("#about").hide();
+        $("#btn_box_single").removeClass("lcars-periwinkle-bg").addClass("lcars-indigo-bg");
+        $("#btn_box_yaml").removeClass("lcars-periwinkle-bg").addClass("lcars-indigo-bg");
+        $("#btn_box_csv").removeClass("lcars-periwinkle-bg").addClass("lcars-indigo-bg");
+        if (output_disabled) {
+            $("#btn_box_output").removeClass("lcars-periwinkle-bg lcars-indigo-bg").addClass("lcars-eggplant-bg");
+        } else {
+            $("#btn_box_output").removeClass("lcars-periwinkle-bg lcars-eggplant-bg").addClass("lcars-indigo-bg");
         }
-        for(var i = 0; i < response.data.length; i++) {
-            s="<option value=\""+response.data[i]+"\">"+response.data[i]+"</option>";
-            $('#use0').append(s);
-            $('#use1').append(s);
-            $('#use2').append(s);
+        $("#btn_box_documentation").removeClass("lcars-periwinkle-bg").addClass("lcars-indigo-bg");
+        $("#btn_box_about").removeClass("lcars-periwinkle-bg").addClass("lcars-indigo-bg");
+    }
+
+    $("#btn_single").click(function(){
+        uiReset();
+        $("#encrypt_single").show();
+        $("#btn_box_single").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+        return false;
+    })
+
+    $("#btn_yaml").click(function(){
+        uiReset();
+        $("#encrypt_yaml").show();
+        $("#btn_box_yaml").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+        return false;
+    })
+
+    $("#btn_csv").click(function(){
+        uiReset();
+        $("#encrypt_csv").show();
+        $("#btn_box_csv").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+        return false;
+    })
+
+    $("#btn_output").click(function(){
+        uiReset();
+        if (output_disabled) {
+            lcarsAudio.TactileInputNegativeAcknowledge();
+            return false
         }
-      });
+        lcarsAudio.TactileInputAcknowledge();
+        $("#output").show();
+        $("#btn_box_output").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+        return false;
+    })
+
+    $("#btn_documentation").click(function(){
+        uiReset();
+        $("#documentation").show();
+        $("#btn_box_documentation").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+        return false;
+    })
+
+    $("#btn_about").click(function(){
+        uiReset();
+        $("#about").show();
+        $("#btn_box_about").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+        return false;
+    })
 
     $("#single").submit(function(e) {
         e.preventDefault();
@@ -37,10 +91,10 @@
         var form = $(this);
         var actionUrl = form.attr('action');
         
-        var password = $("#password1").val();
-        var confirmPassword = $("#password2").val();
+        var password = $("#single_password1").val();
+        var confirmPassword = $("#single_password2").val();
         if (password != confirmPassword) {
-          alert("Passwords don't match!")
+            lcarsAudio.TactileInputNegativeAcknowledge();
           return
         }
         
@@ -52,21 +106,28 @@
             {
                 response=JSON.parse(json);
                 if (response.error != null) {
+                    lcarsAudio.TactileInputNegativeAcknowledge();
                     alert(response.error.message);
+                    return false;
                 }
                 $("#output").html("")
                 for (const [key, value] of Object.entries(response.data)) {
-                    $("#output").append("<div>\n<h2>" + key +"</h2>\n<textarea id=\"output_"+key+"\" cols=\"84\" rows=\"15\" class=\"out\">"+value+"</textarea>\n</div>\n")
+                    $("#output").append("<div class=\"lcars-row\">\n<div class=\"lcars-bracket left hollow lcars-danub-bg\" style=\"border-color: #68c; fill: #68c\"></div>\n<div class=\"lcars-column\">\n<div class=\"lcars-row\">\n<div class=\"lcars-element lcars-danub-bg lcars-u-12\"><h2>"+key+"</h2></div>\n</div>\n<div class=\"lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-12-8\">\n<textarea id=\"output_" + key + "\" name=\"output_dummy\" cols=\"40\" rows=\"20\" disabled class=\"output\">"+value+"</textarea>\n</div>\n</div>\n<div class=\"lcars-bracket right hollow lcars-dodger-blue-bg\" style=\"border-color: #68c; fill: #68c\"></div>\n</div>\n")
                 }
-                $("#accordion").accordion( "option", "active", 0 );
+                output_disabled = false;
+                uiReset();
+                $("#output").show();
+                $("#btn_box_output").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+                lcarsAudio.TactileInputAcknowledge();
             },
             error: function(xhr, ajaxOptions, thrownError)
             {
-                response=JSON.parse(xhr.responseText);
+                response=JSON.parse(xhr.responseText);39 
                 message = response.error.message
                 if (response.error.error != null) {
                     message=message +"\n"+response.error.error
                 }
+                lcarsAudio.TactileInputNegativeAcknowledge();
                 alert(message);
             }
         });
@@ -87,13 +148,19 @@
             {
                 response=JSON.parse(json);
                 if (response.error != null) {
+                    lcarsAudio.TactileInputNegativeAcknowledge();
                     alert(response.error.message);
+                    return false;
                 }
                 $("#output").html("")
                 for (const [key, value] of Object.entries(response.data)) {
-                    $("#output").append("<div>\n<h2>" + key +"</h2>\n<textarea id=\"output_"+key+"\" cols=\"84\" rows=\"15\" class=\"out\">"+value+"</textarea>\n</div>\n")
+                    $("#output").append("<div class=\"lcars-row\">\n<div class=\"lcars-bracket left hollow lcars-danub-bg\" style=\"border-color: #68c; fill: #68c\"></div>\n<div class=\"lcars-column\">\n<div class=\"lcars-row\">\n<div class=\"lcars-element lcars-danub-bg lcars-u-12\"><h2>"+key+"</h2></div>\n</div>\n<div class=\"lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-12-8\">\n<textarea id=\"output_" + key + "\" name=\"output_dummy\" cols=\"40\" rows=\"20\" disabled class=\"output\">"+value+"</textarea>\n</div>\n</div>\n<div class=\"lcars-bracket right hollow lcars-dodger-blue-bg\" style=\"border-color: #68c; fill: #68c\"></div>\n</div>\n")
                 }
-                $("#accordion").accordion( "option", "active", 0 );
+                output_disabled = false;
+                uiReset();
+                $("#output").show();
+                $("#btn_box_output").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+                lcarsAudio.TactileInputAcknowledge();
             },
             error: function(xhr, ajaxOptions, thrownError)
             {
@@ -102,10 +169,10 @@
                 if (response.error.error != null) {
                     message=message +"\n"+response.error.error
                 }
+                lcarsAudio.TactileInputNegativeAcknowledge();
                 alert(message);
             }
         });
-        
     });
 
     $("#csv").submit(function(e) {
@@ -122,13 +189,19 @@
             {
                 response=JSON.parse(json);
                 if (response.error != null) {
+                    lcarsAudio.TactileInputNegativeAcknowledge();
                     alert(response.error.message);
+                    return false;
                 }
                 $("#output").html("")
                 for (const [key, value] of Object.entries(response.data)) {
-                    $("#output").append("<div>\n<h2>" + key +"</h2>\n<textarea id=\"output_"+key+"\" cols=\"84\" rows=\"15\" class=\"out\">"+value+"</textarea>\n</div>\n")
+                    $("#output").append("<div class=\"lcars-row\">\n<div class=\"lcars-bracket left hollow lcars-danub-bg\" style=\"border-color: #68c; fill: #68c\"></div>\n<div class=\"lcars-column\">\n<div class=\"lcars-row\">\n<div class=\"lcars-element lcars-danub-bg lcars-u-12\"><h2>"+key+"</h2></div>\n</div>\n<div class=\"lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-12-8\">\n<textarea id=\"output_" + key + "\" name=\"output_dummy\" cols=\"40\" rows=\"20\" disabled class=\"output\">"+value+"</textarea>\n</div>\n</div>\n<div class=\"lcars-bracket right hollow lcars-dodger-blue-bg\" style=\"border-color: #68c; fill: #68c\"></div>\n</div>\n")
                 }
-                $("#accordion").accordion( "option", "active", 0 );
+                output_disabled = false;
+                uiReset();
+                $("#output").show();
+                $("#btn_box_output").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+                lcarsAudio.TactileInputAcknowledge();
             },
             error: function(xhr, ajaxOptions, thrownError)
             {
@@ -137,197 +210,419 @@
                 if (response.error.error != null) {
                     message=message +"\n"+response.error.error
                 }
+                lcarsAudio.TactileInputNegativeAcknowledge();
                 alert(message);
             }
         });
     });
-  } );
+
+    uiReset();
+    $("#about").show();
+    $("#btn_box_about").removeClass("lcars-indigo-bg").addClass("lcars-periwinkle-bg");
+    $.get( "api/keys", function( json ) {
+        response=JSON.parse(json);
+        if (response.error != null) {
+            lcarsAudio.TactileInputNegativeAcknowledge();
+            alert(response.error.message);
+        }
+        sel = " selected=\"selected\""
+        for(var i = 0; i < response.data.length; i++) {
+            s="<option value=\""+response.data[i]+"\"" + sel + ">" + response.data[i] + "</option>";
+            $('#single_use').append(s);
+            $('#yaml_use').append(s);
+            $('#csv_use').append(s);
+            sel=""
+        }
+      });
+} );
   </script>
 </head>
 <body>
-<div class="bg">
-    <div class="header">
-        <h1 class="header">EYAS - EYAml Server</h1>
-    </div>
-    <div id="main" class="main">
-        <div id="accordion">
-            <h3>Output</h3>
-            <div id="output">
-                <p>
-                    <textarea id="output_dummy" name="output_dummy" cols="40" rows="20" disabled> </textarea>
-                </p>
+	<div class="lcars-app-container">
+
+		<!-- HEADER ==================================================== -->
+		<div id="header" class="lcars-row header lcars-indigo-bg">
+			<div class="lcars-elbow left-bottom lcars-indigo-bg"></div>
+			<div class="lcars-bar horizontal  lcars-indigo-bg">
+				<div class="lcars-title right lcars-indigo-bg">EYAml Server</div>
+			</div>
+			<div class="lcars-bar horizontal right-end decorated lcars-indigo-bg"></div>
+		</div>
+		<!-- SIDE MENU ================================================= -->
+		<div id="left-menu" class="lcars-column start-space lcars-u-1">
+			<a href="" id="btn_single"><div id="btn_box_single" class="lcars-element button lcars-periwinkle-bg">Single key</div></a>
+			<a href="" id="btn_yaml"><div id="btn_box_yaml" class="lcars-element button lcars-indigo-bg">YAML</div></a>
+			<a href="" id="btn_csv"><div id="btn_box_csv" class="lcars-element button lcars-indigo-bg">CSV</div></a>
+			<a href="" id="btn_output"><div id="btn_box_output" class="lcars-element lcars-eggplant-bg">Output</div></a>
+			<a href="" id="btn_documentation"><div id="btn_box_documentation" class="lcars-element button lcars-indigo-bg">Documentation</div></a>
+            <a href="" id="btn_about"><div id="btn_box_about" class="lcars-element button lcars-indigo-bg">About</div></a>
+			<!-- FILLER -->
+			<div class="lcars-bar lcars-u-1 lcars-indigo-bg"></div>
+		</div>
+		<!-- FOOTER ==================================================== -->
+		<div id="footer" class="lcars-row ">
+			<div class="lcars-elbow left-top lcars-indigo-bg"></div>
+			<div class="lcars-bar horizontal both-divider bottom lcars-indigo-bg"></div>
+			<div class="lcars-bar horizontal right-end left-divider bottom lcars-indigo-bg"></div>
+		</div>
+
+		<!-- MAIN CONTAINER -->
+		<div id="container">
+
+			<!-- Single key encryption -->
+			<div class="lcars-column lcars-u-13" id="encrypt_single">
+                <form id="single" class="encryptform" action="api/encrypt/single">
+                    <div class="lcars-row">
+                        <div class="lcars-bracket left hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                        <div class="lcars-column">
+                            <div class="lcars-row">
+                                <div class="lcars-element lcars-danub-bg lcars-u-12"><h2>Encrypt single key</h2></div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    <label for="single_key">Key</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10">
+                                    <input id="single_key" name="key" type="text" value="mymodule::mypassword"  class="input"/>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    <label for="single_password1">Password</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10">
+                                    <input id="single_password1" name="password1" type="password" class="input" />
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    <label for="single_password2">Repeat password</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10">
+                                    <input id="single_password2" name="password2" type="password" class="input" />
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2 fill">
+                                    Output type
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10 fill">
+                                    <fieldset>
+                                        <input type="radio" id="single_block" name="output" value="block" checked><label for="block">Block</label><br>
+                                        <input type="radio" id="single_string" name="output" value="string" ><label for="string">String</label><br>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2-2">
+                                    <label for="single_use">Use PKCS7 key(s)</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10-2">
+                                    <select id="single_use" name="use" size="5" multiple class="input lcars-periwinkle-bg"></select>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    &nbsp;
+                                </div>
+                                <div class="lcars-text-box lcars-u-10">
+                                    <input type="submit" value="Encrypt" class="lcars-element button rounded lcars-periwinkle-bg lcars-black-color ">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lcars-bracket right hollow lcars-dodger-blue-bg" style="border-color: #68c; fill: #68c"></div>
+                    </div>
+                </form>
+			</div>
+            <!-- YAML encryption -->
+            <div class="lcars-column lcars-u-13" id="encrypt_yaml">
+                <form id="single" class="encryptform" action="api/encrypt/yaml">
+                    <div class="lcars-row">
+                        <div class="lcars-bracket left hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                        <div class="lcars-column">
+                            <div class="lcars-row">
+                                <div class="lcars-element lcars-danub-bg lcars-u-12"><h2>Encrypt all keys in yaml</h2></div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2-8">
+                                    <label for="yaml_yaml">YAML</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10-8">
+                                    <textarea id="yaml_yaml" name="yaml" cols="40" rows="20" class="input"></textarea>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2 fill">
+                                    Output type
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10 fill">
+                                    <fieldset>
+                                        <input type="radio" id=yaml_block" name="output" value="block" checked><label for="block">Block</label><br>
+                                        <input type="radio" id="yaml_string" name="output" value="string" ><label for="string">String</label><br>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2-2">
+                                    <label for="yaml_use">Use PKCS7 key(s)</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10-2">
+                                    <select id="yaml_use" name="use" size="5" multiple class="input lcars-periwinkle-bg"></select>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    &nbsp;
+                                </div>
+                                <div class="lcars-text-box lcars-u-10">
+                                    <input type="submit" value="Encrypt" class="lcars-element button rounded lcars-periwinkle-bg lcars-black-color ">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lcars-bracket right hollow lcars-dodger-blue-bg" style="border-color: #68c; fill: #68c"></div>
+                    </div>
+                </form>
             </div>
-            <h3>Input</h3>
-            <div id="input">
-                <p>
-                    <div id="tabs">
-                        <ul>
-                            <li><a href="#tabs-1">Encrypt single key</a></li>
-                            <li><a href="#tabs-2">Encrypt YAML</a></li>
-                            <li><a href="#tabs-3">Encrypt CSV</a></li>
-                        </ul>
-                        <div id="tabs-1">
-                            <form id="single" class="encryptform" action="api/encrypt/single">
-                                <table>
-                                    <tr><th colspan="2"><h2 class="header">Encrypt single key</h2></th></tr>
-                                    <tr>
-                                        <th>
-                                            Key
-                                        </th>
-                                        <td>
-                                            <input id="key" name="key" type="text" value="mymodule::mypassword" class="input" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            Password
-                                        </th>
-                                        <td>
-                                            <input id="password1" name="password1" type="password" class="input" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            Repeat password
-                                        </th>
-                                        <td>
-                                            <input id="password2" name="password2" type="password" class="input" />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            Output
-                                        </th>
-                                        <td>
-                                            <input type="radio" id="block" name="output" value="block" checked><label for="block">Block</label><br>
-                                            <input type="radio" id="string" name="output" value="string" ><label for="string">String</label><br>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            <label for="use">Use PKCS7 key(s)</label>
-                                        </th>
-                                        <td>
-                                            <select id="use0" name="use" size="5" multiple class="input">
-                
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>&nbsp;</th>
-                                        <td>
-                                            <input type="submit" value="Encrypt" class="ui-button ui-widget ui-corner-all">
-                                        </td>
-                                    </tr>
-                                </table>
-                            </form>
+            <!-- CSV encryption -->
+            <div class="lcars-column lcars-u-13" id="encrypt_csv">
+                <form id="single" class="encryptform" action="api/encrypt/csv">
+                    <div class="lcars-row">
+                        <div class="lcars-bracket left hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                        <div class="lcars-column">
+                            <div class="lcars-row">
+                                <div class="lcars-element lcars-danub-bg lcars-u-12"><h2>Encrypt all keys in CSV</h2></div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2-8">
+                                    <label for="csv_csv">CSV</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10-8">
+                                    <textarea id="csv_csv" name="yaml" cols="40" rows="20" class="input"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    <label for="csv_keycol">Key column</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10">
+                                    <input id="csv_keycol" name="keycol" type="number" min="0" value="0" class="input"/>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    <label for="csv_passcol">Password column</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10">
+                                    <input id="csv_passcol" name="passcol" type="number" min="0" value="1" class="input"/>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    <label for="csv_separator">Separator</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10">
+                                    <input id="separator" name="separator" type="text" size="1" value="," class="input"/>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2 fill">
+                                    Output type
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10 fill">
+                                    <fieldset>
+                                        <input type="radio" id=csv_block" name="output" value="block" checked><label for="csv_block">Block</label><br>
+                                        <input type="radio" id="csv_string" name="output" value="string" ><label for="csv_string">String</label><br>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2-2">
+                                    <label for="csv_use">Use PKCS7 key(s)</label>
+                                </div>
+                                <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-10-2">
+                                    <select id="csv_use" name="use" size="5" multiple class="input lcars-periwinkle-bg"></select>
+                                </div>
+                            </div>
+                            <div class="lcars-row">
+                                <div class="lcars-text-box centered-right lcars-danub-bg lcars-black-color lcars-u-2">
+                                    &nbsp;
+                                </div>
+                                <div class="lcars-text-box lcars-u-10">
+                                    <input type="submit" value="Encrypt" class="lcars-element button rounded lcars-periwinkle-bg lcars-black-color ">
+                                </div>
+                            </div>
                         </div>
-                        <div id="tabs-2">
-                            <form id="yaml" class="encryptform" action="api/encrypt/yaml">
-                                <table>
-                                    <tr><th colspan="4"><h2 class="header">Encrypt all keys in yaml</h2></th></tr>
-                                    <tr>
-                                        <th>
-                                            Output
-                                        </th>
-                                        <td>
-                                            <input type="radio" id="block" name="output" value="block" checked><label for="block">Block</label><br>
-                                            <input type="radio" id="string" name="output" value="string" ><label for="string">String</label><br>
-                                        </td>
-                                        <th rowspan="3">
-                                            YAML
-                                        </th>
-                                        <td rowspan="3">
-                                            <textarea id="yaml" name="yaml" cols="40" rows="20" class="input"></textarea>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            <label for="use">Use PKCS7 key(s)</label>
-                                        </th>
-                                        <td>
-                                            <select id="use1" name="use" size="5" multiple class="input">
-                
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>&nbsp;</th>
-                                        <td>
-                                            <input type="submit" value="Encrypt" class="ui-button ui-widget ui-corner-all">
-                                        </td>
-                                    </tr>
-                                </table>
-                            </form>
+                        <div class="lcars-bracket right hollow lcars-dodger-blue-bg" style="border-color: #68c; fill: #68c"></div>
+                    </div>
+                </form>
+            </div>
+            <!-- Output-->
+            <div class="lcars-column lcars-u-13" id="output">
+                <div class="lcars-row">
+                    <div class="lcars-bracket left hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                    <div class="lcars-column">
+                        <div class="lcars-row">
+                            <div class="lcars-element lcars-danub-bg lcars-u-12"><h2>Output</h2></div>
                         </div>
-                        <div id="tabs-3">
-                            <form id="csv" class="encryptform" action="api/encrypt/csv">
-                                <table>
-                                    <tr><th colspan="4"><h2 class="header">Encrypt csv data</h2></th></tr>
-                                    <tr>
-                                        <th>
-                                            Key column
-                                        </th>
-                                        <td>
-                                            <input id="keycol" name="keycol" type="number" min="0" value="0" class="input"/>
-                                        </td>
-                                        <th rowspan="6">
-                                            CSV
-                                        </th>
-                                        <td rowspan="6">
-                                            <textarea id="csv" name="csv" cols="40" rows="20" class="input"></textarea>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            Password column
-                                        </th>
-                                        <td>
-                                            <input id="passcol" name="passcol" type="number" min="0" value="1" class="input"/>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            Separator
-                                        </th>
-                                        <td>
-                                            <input id="separator" name="separator" type="text" size="1" value="," class="input"/>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            Output
-                                        </th>
-                                        <td>
-                                            <input type="radio" id="block" name="output" value="block" checked><label for="block">Block</label><br>
-                                            <input type="radio" id="string" name="output" value="string" ><label for="string">String</label><br>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            <label for="use">Use PKCS7 key(s)</label>
-                                        </th>
-                                        <td>
-                                            <select id="use2" name="use" size="5" multiple class="input">
-                
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>&nbsp;</th>
-                                        <td>
-                                            <input type="submit" value="Encrypt" class="ui-button ui-widget ui-corner-all">
-                                        </td>
-                                    </tr>
-                                </table>
-                            </form>
+                        <div class="lcars-text-box lcars-periwinkle-bg lcars-black-color lcars-u-12-8">
+                            <textarea id="output_dummy" name="output_dummy" cols="40" rows="20" disabled class="output"> </textarea>
                         </div>
                     </div>
-                </p>
+                    <div class="lcars-bracket right hollow lcars-dodger-blue-bg" style="border-color: #68c; fill: #68c"></div>
+                </div>
             </div>
-        </div>
-    </div>
+            <!-- documentation -->
+            <div class="lcars-column lcars-u-13" id="documentation">
+                <div class="lcars-bracket top hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                <div class="lcars-row fill centered"><h2 id="docu_top">EYaS - EYaml Server - Documentation</h2></div>
+                <div class="lcars-row fill centered">
+                    <a href="#docu_purpose"><div class="lcars-element button rounded lcars-indigo-bg">Purpose</div></a>
+                    <a href="#docu_usage"><div class="lcars-element button rounded lcars-indigo-bg">Usage</div></a>
+                    <a href="#docu_frontend"><div class="lcars-element button rounded lcars-indigo-bg">Frontend</div></a>
+                    <a href="#docu_installation"><div class="lcars-element button rounded lcars-indigo-bg">Installation</div></a>
+                    <a href="#docu_configuration"><div class="lcars-element button rounded lcars-indigo-bg">Configuration</div></a>
+                </div>
+                <div class="lcars-bracket bottom hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                <section id="docu_purpose">
+                    <div class="lcars-bracket top hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                    <div class="lcars-row">
+                        <div class="lcars-column lcars-u-1"> &nbsp</div>
+                        <div class="lcars-column">
+                            <h3>Purpose</h3>
+                            <p>EYAaS is a simple web frontend to <a href="https://github.com/voxpupuli/hiera-eyaml">eyaml</a> encryption. Its intended audience are users who don't have eyaml installed or access to the public keys as well as lazy system administrators (like me) who need to generate/encrypt a lot of passwords at once.</p>
+                            <p>Written in go and using the original eyaml cli as the main workhorse, EYas provides a simple interface to encrypt a single password, a whole yaml- or csv file for one or more puppet servers (using different pkcs7 keys).</p>
+                            <p>It aims for easy setup and configuration as well as convenience.</p>
+                        </div>
+                    </div>
+                    <div class="lcars-bracket bottom hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                </section>
+                <section id="docu_usage">
+                    <div class="lcars-bracket top hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                    <div class="lcars-row">
+                        <div class="lcars-column lcars-u-1"> &nbsp</div>
+                        <div class="lcars-column">
+                            <h3 id="docu_usage">Usage</h3>
+                            <h4>systemd service</h4>
+                            <p>When using the provided RPM, a <a href="https://systemd.io/">systemd</a> <a href="https://www.freedesktop.org/software/systemd/man/systemd.service.html#">service</a> will be provided. Use <span class="code lcars-periwinkle-color">systemctl start eyas.service</span> to start it and <span class="code lcars-periwinkle-color">systemctl enable eyas.service</span> to start it automatically when the server boots.</p>
+                            <h4>docker / podman container</h4>
+                            <p>When using the provided Dockerfile to build a container, this container can be started with <span class="code lcars-periwinkle-color"> podman run --rm --expose=8443 --volume=./keys:/keys:ro --volume=./ssl:/ssl:ro eyas:latest</span>. </p>
+                            <h4>Start manually</h4>
+                            <p>When starting EYaS without parameters, it will start a web server using its default settings.</p>
+                            <p>The web server uses https by default and listens on port 8443. Specify --ssl=false to use http instead. <span class="lcars-rust-color">This is insecure, as passwords can be transmitted as clear text</span> and should only be used when you can secure communications between the web browser and the server by other means (reverse proxy).</p>
+                            <p>EYaS assumes to find its ssl certificate and key in the "ssl" directory in its working directory named server.crt and server.key. You can use <a href="https://letsencrypt.org/de/">Let's Encrypt</a> to create and manage these certificates or create your own. Currently, golang does not support encrypted keys, so the key needs to be unencrypted. Refer to <a href="#setup">the setup documentation</a> for more information.</p>
+                            <p>It will assume, that "eyaml" is somewhere in its path and the directory "keys" contains folders for every puppetserver which in turn contain a "public_key.pkcs7.pem" with the servers public key. You can use the --keydir parameter to choose a diffent directory.</p>
+                            <p>The application logs tom stdout by default. This can be changed by providing the name of a log file with the --logfile parameter. The log level can be set with the --loglevel parameter. Valid log levels are  panic, fatal, error, warn, info, debug and trace. By default, the log level is set to "info".</p>
+                        </div>
+                    </div>
+                    <div class="lcars-bracket bottom hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                </section>
+                <section id="docu_frontend">
+                    <div class="lcars-bracket top hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"  id="docu_frontend"></div>
+                    <div class="lcars-row">
+                        <div class="lcars-column lcars-u-1"> &nbsp</div>
+                        <div class="lcars-column">
+                            <h3>Web Frontend</h3>
+                            <p>EYaS is quite simple to use. The menu on the left side of the screen has three buttons "Single key", "YAML" and "CSV" where you can choose whether you want to encrypt a single password or a whole list in either YAML or CSV format. The button "Output" shows the last output and when you read this, chances are quite high, that you already figured out, what the button "Documentation" is for.</p>
+                            <h4>Encrypting a single key</h4>
+                            <p>To encrypt a single sensitive key, you select the page by clicking on the "Single Key" entry. The name of your key goes into the "Key" field. If you want to generate an entry for the parameter "mypassword" of the puppet module "mymodule", you write "mymodule::mypassword" here.</p>
+                            <p>The fields "Password" and "Repeat password" are used to set the password. They must match.</p>
+                            <p>Use "Output type" to specify whether you want the encrypted result as a multiline block or a single very long line of text.</p>
+                            <p>The list in "Use PKCS7 key(s)"" shows all available public keys which can be used for encryption. If you need to set up the same entry across multiple puppet servers which use different key pairs, you can select multiple keys at once to generate them together.</p>
+                            <p>Press "Encrypt" to encrypt the key. The content of your form will be processed by the server and upon success, you will be redirected to the "Output" page</p>
+                            <h4>Encrypt a yaml file</h4>
+                            <p>Use the "YAML" button in the menu to encrypt a hiera yaml file in one go. Paste the content into the "YAML" textarea, choose the output type and PKCS7 keys as described above and click on "Encrypt". Depending on the number of entries, this may take a while. The output page will contain the output for every selected key.</p>
+                            <h4>Encrypt passwords from a CSV list</h4>
+                            <p>Several password managers can export their data as comma separated text (sometimes with other separators). Use the "CSV" button to get to the form. Here, you paste the contents of your file into the CSV text area. Then you specify, in which column the key and in which the password can be found, by typing their number into the "Key column" and "Password column" fields. Column numbering starts at 0. The field "Separator" specifies, which separator is used between the fields (defaults to a comma).</p>
+                            <p>"Output type" and "Use PKCS7 key(s)" work the same way as described above for the single key. Klick on "Encrypt" to find the results on the "Output" page.  Depending on the number of entries, the encryption may take a while.</p>
+                        </div>
+                    </div>
+                    <div class="lcars-bracket bottom hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                </section>
+                <section id="docu_installation">
+                    <div class="lcars-bracket top hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                    <div class="lcars-row">
+                        <div class="lcars-column lcars-u-1"> &nbsp</div>
+                        <div class="lcars-column">
+                            <h3>Installation</h3>
+                            <h4>RPM</h4>
+                            <p>On a RHEL compatible system, use the RPM provided on the <a href="https://github.com/joernott/eyas/releases">release page</a> to install EYaS into /usr/lib/eyas. The RPM will also provide a systemd service to start the server.</p>
+                            <p>Download the rpm from the <a href="https://github.com/joernott/eyas/releases">release page</a> and save it somewhere (e.g. tmp). Then use your system installer to install it. Use the <a href="https://github.com/voxpupuli/hiera-eyaml#setup">instructions on the hiera-eyaml Site</a> to install eyaml.</p>
+                            <p>On Redhat 7 / CentOS 7:</p>
+                            <code>
+                                sudo yum install /path/to/eyas/rpm
+                                sudo gem install hiera-eyaml
+                            </code>
+                            <p> On Redhat 8 / Fedora etc</p>
+                            <code>
+                                sudo dnf install /path/to/eyas/rpm
+                                sudo gem install hiera-eyaml
+                            </code>
+                            <h4>Other Linux distros</h4>
+                            <p>Use the tar.gz archive provided on the <a href="https://github.com/joernott/eyas/releases">release page</a> to install eyas. Afterwards copy the systemd service file to the right place and install eyaml.</p>
+                            <code>
+                                sudo mkdir /usr/lib/eyas
+                                sudo tar -C /usr/lib/eyas -xzf /path/to/eyas/archive
+                                sudo mv /usr/lib/eyas/eyas.service /usr/lib/systemd/system/
+                                sudo systemctl service-reload
+                                sudo gem install hiera-eyaml
+                            </code>
+                            <h4>Windows</h4>
+                            <p>Figure out, how to install ruby and hiera eyaml on Windows. Then create a directory "eyas" in "C:\Program Files" and copy the eyas.exe from the <a href="https://github.com/joernott/eyas/releases">release page</a> into that folder.</p>        
+                        </div>
+                    </div>
+                    <div class="lcars-bracket bottom hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                </section>
+                <section id="docu_configuration">
+                    <div class="lcars-bracket top hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                    <div class="lcars-row">
+                        <div class="lcars-column lcars-u-1"> &nbsp</div>
+                        <div class="lcars-column">
+                            <h3>Configuration</h3>
+                        </div>
+                    </div>
+                    <div class="lcars-bracket bottom hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                </section>
+            </div>
+            <!-- About -->
+			<div class="lcars-column lcars-u-13 lcars-black-bg" id="about">
+                <div class="lcars-row">
+                    <div class="lcars-bracket left hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
+                    <div class="lcars-column lcars-u-10 full-centered">
+                        <h2>EYaS - EYaml Server</h2>
+                        Version: 1.0.0<br/>
+                        Author: Jörn Ott<br/>
+                        License: <a href="https://opensource.org/licenses/BSD-3-Clause" target="_blank">BSD 3 Clause</a><br/>
+                        Starring: <a href="https://github.com/voxpupuli/hiera-eyaml">hiera-eyaml</a> as the work horse<br/>
+                        Also starring: <a href="https://github.com/joernweissenborn/lcars">LCARS</a>as UI theme<br/>
+                        Co starring: <a href="https://jquery.com/">jQuery</a><br>
+                    </div>
+                    <div class="lcars-bracket right hollow lcars-dodger-blue-bg" style="border-color: #68c; fill: #68c"></div>
+                </div>
+            </div>
+		</div>
+	</div>
 </div>
 
+<audio id="audDummy"/><!--Just leave this here, just needed to enable automatic query canplay in the initialization code to load compatible media types -->
+<script src="/static/js/lcars_audio.js"></script>
+
+<script>
+	//All "booted" up notification. 
+	//Many browsers won't play this next sound because the user hasn't "blessed" the action with a UI click yet.
+	document.addEventListener("DOMContentLoaded", function(event) { 
+		lcarsAudio.Ready();
+	});
+
+	//Cosmetic-ish behavior: scroll to gets hidden by top row body frame, so we need to scroll back slighly to have the actual heading element for each section visible after an in-page navigation.
+	function locationHashChanged() {
+		if (location.hash.substr(-8) == "_section") {
+			console.info("in-page nav detected.");
+			setTimeout(function(){window.scrollBy(0,-100)}, 100);
+		}
+	}
+	window.onhashchange = locationHashChanged;
+
+</script>
 </body>
 </html>

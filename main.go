@@ -10,7 +10,7 @@ import (
 // It will add the specified files.
 //go:embed index.html
 // It will add all non-hidden file in images, css, and js.
-//go:embed images css js
+//go:embed audio fonts images img css js
 
 var Static embed.FS
 

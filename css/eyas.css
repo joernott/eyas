@@ -1,56 +1,90 @@
-.header {
-    border-color: rgb(221, 221, 221);
-    font-family: Arial, Helvetica, sans-serif;
-
+/* roboto-condensed-300 - latin */
+@font-face {
+    font-family: 'Roboto Condensed';
+    font-style: normal;
+    font-weight: 300;
+    src: local(''),
+         url('/static/fonts/roboto-condensed-v25-latin-300.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('/static/fonts/roboto-condensed-v25-latin-300.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+  
+  /* roboto-condensed-regular - latin */
+  @font-face {
+    font-family: 'Roboto Condensed';
+    font-style: normal;
+    font-weight: 400;
+    src: local(''),
+         url('/static/fonts/roboto-condensed-v25-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('/static/fonts/roboto-condensed-v25-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+  
+  /* roboto-condensed-700 - latin */
+  @font-face {
+    font-family: 'Roboto Condensed';
+    font-style: normal;
+    font-weight: 700;
+    src: local(''),
+         url('/static/fonts/roboto-condensed-v25-latin-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('/static/fonts/roboto-condensed-v25-latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+  
+  
+  
+p, h1, h2, h3 {
+    margin-top: 1em;
 }
 
-div.header {
-    background-color: rgb(233, 233, 233);
-    border-color: rgb(221, 221, 221);
-    min-height: 32px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 2px;
-    margin-bottom: 0;
-    padding: 2px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    width: 1800px;
+pre {
+    display: inline;
+    white-space: pre-line;
+    word-wrap: break-word;
 }
 
-th {
-    text-align: left;
-    vertical-align: top;
+table.localCustomFunWithCaptions caption {
+    margin-left: -.5em;
+    margin-bottom: .5em;
+    text-align: right;
+    border-right: .8em solid;
+    border-left: 32rem solid;
+    border-radius: .5em;
+    padding-right: .33em;
+    padding-bottom: -.15em;
+}
+#audio_class_summary {
+    font-size:.9rem;
 }
 
 .input {
     min-width: 340px;
-}
-
-div.input {
-    height: 740px;
-    overflow-y: scroll;
-}
-
-div.output {
-    height: 740px;
-    overflow-y: scroll;
-}
-
-div.main {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 0;
-    margin-bottom: 0;
-    height: 820px;
-    width: 1800px;
-}
-
-div.bg {
-    background-color: rgb(227, 239, 255);
-}
-
-textarea.out {
-    font-family: 'Courier New', Courier, monospace;
+    color: black;
     width: 100%;
+}
+
+textarea.output {
+    font-family: 'Courier New', Courier, monospace;
+    min-width: 340px;
+    color: black;
+    width: 100%;
+}
+
+fieldset {
+    border: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+select {
+    overflow-y: hidden;
+    display: inline-block;
+    vertical-align: top;
+    padding: 1px;
+    margin:0px;
+    border: none;
+    font-family: "Roboto Condensed, Arial, sans-serif";
+    font-size: 1em;
+}
+
+option {
+    font-family: "Roboto Condensed, Arial, sans-serif";
+    font-size: 1em;
 }
