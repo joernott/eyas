@@ -27,7 +27,7 @@ fi
 /usr/bin/chmod -Rf a+rX,u+w,g-w,o-w .
 
 %build
-cd "$RPM_BUILD_DIR/eyas-%{version}/check_f5_telemetry"
+cd "$RPM_BUILD_DIR/eyas-%{version}"
 go get -u -v
 go build -v
 
