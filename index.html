@@ -579,6 +579,21 @@
                         <div class="lcars-column lcars-u-1"> &nbsp</div>
                         <div class="lcars-column">
                             <h3>Configuration</h3>
+                            <h4>Commandline</h4>
+                            <p>EYAS uses cobra/viper for parsing the commandline flags and the config file "eyas.yaml". The following parameters are supported:</p>
+                            <dl>
+                                <dt>--config string</dt><dd>Config file (default "eyas.yaml")</dd>
+                                <dt>-h, --help</dt><dd>help for eyas</dd>
+                                <dt>-k, --keydir string</dt><dd>Folder containing directories with PKCS7 public keys (default "keys")</dd>
+                                <dt>-l, --logfile string</dt><dd>Where to log, defaults to stdout</dd>
+                                <dt>-L, --loglevel string</dt><dd>Loglevel can be one of panic, fatal, error, warn, info, debug, trace (default "info")</dd>
+                                <dt>-p, --port int</dt><dd>Port to run the server on (default 8443)</dd>
+                                <dt>-s, --ssl</dt><dd>Whether to use SSL or not (default true)</li></dd>
+                            </dl>
+                            <h4>Keys</h4>
+                            <p>For every PKCS7 key you want to encrypt for, the keydir must contain a folder which in turn contains a
+                            file named "public_key.pkcs7.pem" containing the PUBLIC key to encrypt for. The name of the folders are used
+                            in the UI to select the keys.</p>
                         </div>
                     </div>
                     <div class="lcars-bracket bottom hollow lcars-danub-bg" style="border-color: #68c; fill: #68c"></div>
