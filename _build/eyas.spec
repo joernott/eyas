@@ -32,7 +32,7 @@ go get -u -v
 go build -v
 
 %install
-install -Dpm 0755 %{name}-%{version}eyas "%{buildroot}/usr/bin/eyas"
+install -Dpm 0755 %{name}-%{version}/eyas "%{buildroot}/usr/bin/eyas"
 
 %files
 %defattr(-,root,root,755)
