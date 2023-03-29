@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -162,12 +163,13 @@ func EncryptYaml(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			switch password := value.(type) {
 			case string:
 				{
-					encrypted, err := eyaml.Encrypt(string(password), key, output, "keys/"+pkcs7+"/public_key.pkcs7.pem")
+					encrypted, err := encryptFile(string(password), key, output, KeyPath+"/"+pkcs7+"/public_key.pkcs7.pem")
 					if err != nil {
+						log.Debug().Str("id", "DBG00030").Str("pkcs7", pkcs7).Str("key", key).Str("password", string(password)).Str("type", "yaml").Msg("Encryption failed")
 						errorOut(w, 500, "ERR00034", "Could not encrypt with key "+pkcs7, err)
 						return
 					}
-					log.Debug().Str("id", "DBG00030").Str("pkcs7", pkcs7).Str("key", key).Str("password", string(password)).Str("encrypted", encrypted).Str("type", "yaml").Msg("Encrypted")
+					log.Debug().Str("id", "DBG00031").Str("pkcs7", pkcs7).Str("key", key).Str("password", string(password)).Str("encrypted", encrypted).Str("type", "yaml").Msg("Encrypted")
 					response.Data[pkcs7] = response.Data[pkcs7] + " \n " + encrypted
 				}
 			default:
@@ -183,6 +185,23 @@ func EncryptYaml(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 	fmt.Fprintf(w, string(json[:]))
+}
+
+func encryptFile(password string, key string, output eyaml.OutputType, pkcs7 string) (string, error) {
+	file, err := ioutil.TempFile("", "eyas")
+	if err != nil {
+		log.Error().Err(err).Str("file", file.Name()).Msg("Error creating temporary file")
+		return "", err
+	}
+	defer os.Remove(file.Name())
+	_, err = file.WriteString(password)
+	if err != nil {
+		log.Error().Err(err).Str("file", file.Name()).Str("password", password).Msg("Error writing to temporary file")
+		return "", err
+	}
+	file.Close()
+	log.Debug().Str("id", "DBG00040").Str("pkcs7", pkcs7).Str("key", key).Str("file", file.Name()).Str("type", "yaml").Msg("Saved password to file")
+	return eyaml.EncryptFile(file.Name(), key, output, KeyPath+"/"+pkcs7+"/public_key.pkcs7.pem")
 }
 
 func EncryptCSV(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
